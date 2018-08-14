@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 
 public static final String dataDirectory = "/Users/surao/Desktop/root/dev/github/huffman/data/";
 public static final String inputFilepath = dataDirectory + "mobydick.txt";
@@ -10,12 +11,13 @@ public void setup() {
     PriorityQueue<Node> pqueue = buildQueue(frequencyMap); 
     Node root = buildHuffmanTree(pqueue);
     HashMap<Byte, String> binaryMap = buildBinaryMap(root);
-    printBinaryMap(binaryMap);
+    ArrayList<String> encodedLines = encodeData(binaryMap, lines);
+    println("encodedLines: \n" + encodedLines);
 }
 
 public PriorityQueue<Node> buildQueue(HashMap<Byte, Integer> map) {
     PriorityQueue<Node> pqueue = new PriorityQueue<Node>();
-    for(HashMap.Entry<Byte, Integer> entry : map.entrySet()) {
+    for (HashMap.Entry<Byte, Integer> entry : map.entrySet()) {
         Node node = new Node(entry.getKey(), entry.getValue());
         pqueue.add(node);
     }
@@ -24,14 +26,16 @@ public PriorityQueue<Node> buildQueue(HashMap<Byte, Integer> map) {
 
 public Node buildHuffmanTree(PriorityQueue<Node> pqueue) {
     Node root = null;
-    while(!pqueue.isEmpty()) {
+    while (!pqueue.isEmpty()) {
         Node left = null, right = null;
         int value = 0;
         try {
             left = pqueue.remove();
             right = pqueue.remove();
-        } catch (NoSuchElementException e) {}
-        
+        } 
+        catch (NoSuchElementException e) {
+        }
+
         if (left != null) value += left.getValue();
         if (right != null) value += right.getValue();
 
@@ -53,7 +57,7 @@ public HashMap<Byte, Integer> buildFrequencyMap(ArrayList<String> lines) {
     for (String line : lines) {
         try {
             byte[] bytes = line.getBytes("UTF-8");
-            for (byte b: bytes) {
+            for (byte b : bytes) {
                 if (frequencyMap.containsKey(b)) {
                     Integer value = frequencyMap.get(b);
                     if (value != null) {
@@ -63,7 +67,7 @@ public HashMap<Byte, Integer> buildFrequencyMap(ArrayList<String> lines) {
                     frequencyMap.put(b, 1);
                 }
             }
-        } catch (Exception e) {}
+        } catch (UnsupportedEncodingException e) { exit(); }
     }
     return frequencyMap;
 }
@@ -76,26 +80,33 @@ public HashMap<Byte, String> buildBinaryMap(Node node, String encoding) {
     HashMap<Byte, String> binaryMap = new HashMap<Byte, String>();
     if (node != null) {
         if (node.getLeft() == null && node.getRight() == null) {
-            binaryMap.put(node.getData(), encoding);   
+            binaryMap.put(node.getData(), encoding);
         }
-        
+
         binaryMap.putAll(buildBinaryMap(node.getLeft(), encoding + "0"));
         binaryMap.putAll(buildBinaryMap(node.getRight(), encoding + "1"));
     }
     return binaryMap;
 }
 
-public final static int kEncodingSuccess = 1;
-public int encodeData(ArrayList<String> lines) {
-    for (String line : lines) {}
-    return kEncodingSuccess;
+public ArrayList<String> encodeData(HashMap<Byte, String> binaryMap, ArrayList<String> lines) {
+    ArrayList<String> output = new ArrayList<String>();
+    for (String line : lines) {
+        try {
+            byte[] bytes = line.getBytes("UTF-8");
+            for (byte b : bytes) {
+                output.add(binaryMap.get(b));
+            }
+        } catch (UnsupportedEncodingException e) { exit(); }
+    }
+    return output;
 }
 
 public void printBinaryMap(HashMap<Byte, String> map) {
-    for(HashMap.Entry<Byte, String> entry : map.entrySet()) {
+    for (HashMap.Entry<Byte, String> entry : map.entrySet()) {
         Byte b = entry.getKey();
         String s = entry.getValue();
-        System.out.println("{" + b + " -> " + s + "}");    
+        System.out.println("{" + b + " -> " + s + "}");
     }
 }
 
@@ -110,6 +121,6 @@ public void printFrequencyMap(HashMap<Byte, Integer> map) {
 public void printQueue(PriorityQueue<Node> pqueue) {
     Iterator it = pqueue.iterator();
     while (it.hasNext()) {
-        System.out.println(it.next().toString());    
+        System.out.println(it.next().toString());
     }
 }
