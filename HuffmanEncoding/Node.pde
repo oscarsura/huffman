@@ -33,7 +33,7 @@ public class Node implements Comparable<Node> {
         this.right = right;
     }
     
-    public int getData() {
+    public byte getData() {
         return data;
     }
     
