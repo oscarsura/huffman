@@ -4,6 +4,7 @@ import java.io.*;
 public static final String dataDirectory = "/Users/surao/Desktop/root/dev/github/huffman/data/";
 public static final String inputFilepath = dataDirectory + "mobydick.txt";
 public static final String outputFilepathBase = dataDirectory;
+public static final boolean log = true;
 
 public void setup() {
     ArrayList<String> lines = new ArrayList<String>(Arrays.asList(loadStrings(inputFilepath)));
@@ -12,7 +13,14 @@ public void setup() {
     Node root = buildHuffmanTree(pqueue);
     HashMap<Byte, String> binaryMap = buildBinaryMap(root);
     ArrayList<String> encodedLines = encodeData(binaryMap, lines);
-    println("encodedLines: \n" + encodedLines);
+    logData(encodedLines);
+}
+
+public void logData(ArrayList<String> encodedLines) {
+    if (!log) return;
+    println("Binary encoding: \n" + encodedLines);
+    println("Total reductions: " + countReductions(encodedLines));
+    println("Reduction rate: " + (double)countReductions(encodedLines)/encodedLines.size());    
 }
 
 public PriorityQueue<Node> buildQueue(HashMap<Byte, Integer> map) {
@@ -32,9 +40,7 @@ public Node buildHuffmanTree(PriorityQueue<Node> pqueue) {
         try {
             left = pqueue.remove();
             right = pqueue.remove();
-        } 
-        catch (NoSuchElementException e) {
-        }
+        } catch (NoSuchElementException e) {}
 
         if (left != null) value += left.getValue();
         if (right != null) value += right.getValue();
@@ -100,6 +106,31 @@ public ArrayList<String> encodeData(HashMap<Byte, String> binaryMap, ArrayList<S
         } catch (UnsupportedEncodingException e) { exit(); }
     }
     return output;
+}
+
+public static final String signature = "HuffmanEncodingv0.0.1MITLicense";
+public boolean writeEncodedData(ArrayList<String> encodedBytes, Node root) {
+    long now = System.nanoTime();
+    String time = Long.toString(now);
+    String outputFilepath = outputFilepathBase + time.hashCode();
+    BufferedWriter bwriter = null;
+    FileWriter fwriter = null;
+    try {
+        fwriter = new FileWriter(outputFilepath);
+        bwriter = new BufferedWriter(fwriter);
+        
+    } catch (IOException e) {
+        
+    }
+    return true;
+}
+
+public int countReductions(ArrayList<String> encodedBytes) {
+    int reductions = 0;
+    for (String line : encodedBytes) {
+        if (line.length() < 8) reductions++;
+    }
+    return reductions;
 }
 
 public void printBinaryMap(HashMap<Byte, String> map) {
