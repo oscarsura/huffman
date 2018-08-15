@@ -108,20 +108,20 @@ public ArrayList<String> encodeData(HashMap<Byte, String> binaryMap, ArrayList<S
     return output;
 }
 
+public void writeByte(String outputFilepath, Byte data) {
+    try {
+        File file = new File(outputFilepath);
+        FileOutputStream output = new FileOutputStream(file, true);
+        output.write(data);
+        output.close();
+    } catch (Exception e) {}
+}
+
 public static final String signature = "HuffmanEncodingv0.0.1MITLicense";
 public boolean writeEncodedData(ArrayList<String> encodedBytes, Node root) {
     long now = System.nanoTime();
     String time = Long.toString(now);
     String outputFilepath = outputFilepathBase + time.hashCode();
-    BufferedWriter bwriter = null;
-    FileWriter fwriter = null;
-    try {
-        fwriter = new FileWriter(outputFilepath);
-        bwriter = new BufferedWriter(fwriter);
-        
-    } catch (IOException e) {
-        
-    }
     return true;
 }
 
