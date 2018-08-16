@@ -14,8 +14,7 @@ public void setup() {
     HashMap<Byte, String> binaryMap = buildBinaryMap(root);
     ArrayList<String> encodedLines = encodeData(binaryMap, lines);
     logData(encodedLines);
-    writeEncodedData(encodedLines, root);
-    System.out.println("printed the lines to the file");
+    writeEncodedData(encodedLines, frequencyMap, binaryMap);
 }
 
 public void logData(ArrayList<String> encodedLines) {
@@ -110,24 +109,6 @@ public ArrayList<String> encodeData(HashMap<Byte, String> binaryMap, ArrayList<S
     return output;
 }
 
-//public void writeByte(File outputFile, byte data) {
-//    try {
-//        FileOutputStream output = new FileOutputStream(outputFile, true);
-//        output.write(data);
-//        output.close();
-//    } catch (Exception e) { println("well fuck"); }
-//}
-
-//private static String bitBuffer = "";
-//public void writeBit(File outputFile, char ch) {
-//    if (bitBuffer.length() == 8) {
-//        byte b = 0b01111111;
-//        writeByte(outputFile, b);
-//        bitBuffer = "";
-//    }
-//    bitBuffer += ch;
-//}
-
 private static byte[] encodeToByteArray(int[] bits) {
     int numBytes = (bits.length + 7) / 8;
     byte[] results = new byte[numBytes];
@@ -146,10 +127,23 @@ private static byte[] encodeToByteArray(int[] bits) {
     return results;
 }
 
-public static final String signature = "HuffmanEncodingv0.0.1MITLicense";
+public static final String separator = ":::";
+public static final String terminator = "(Definitive^Terminator%Register*Index)\n";
+public ArrayList<String> formatFrequencyMap(HashMap<Byte, Integer> map, HashMap<Byte, String> binaryMap) {
+    ArrayList<String> formattedLines = new ArrayList<String>();
+    for (HashMap.Entry<Byte, Integer> entry : map.entrySet()) {
+        Byte b = entry.getKey();
+        Integer i = entry.getValue();
+        String formattedEntry = b.toString() + separator + i.toString() + "\n";
+        formattedLines.add(formattedEntry);
+    }
+    formattedLines.add(terminator);
+    return encodeData(binaryMap, formattedLines);
+}
+
 public static final String kFileNotFoundError = "The file could not be found, nor created.";
 public static final String kInputOutputError = "The program could not write to the file.";
-public void writeEncodedData(ArrayList<String> encodedBytes, Node root) {
+public void writeEncodedData(ArrayList<String> encodedBytes, HashMap<Byte, Integer> frequencyMap, HashMap<Byte, String> binaryMap) {
     long now = System.nanoTime();
     String time = Long.toString(now);
     String outputFilepath = outputFilepathBase + Math.abs(time.hashCode());
@@ -158,7 +152,8 @@ public void writeEncodedData(ArrayList<String> encodedBytes, Node root) {
         if (!outputFile.exists()) outputFile.createNewFile();
         FileOutputStream outputStream = new FileOutputStream(outputFile, true);
         
-        String byteString = String.join("", encodedBytes);
+        ArrayList<String> frequencyMapBytes = formatFrequencyMap(frequencyMap, binaryMap);
+        String byteString = String.join("", frequencyMapBytes) + String.join("", encodedBytes);
         int[] fragmentedBytes = new int[byteString.length()];
         int index = 0;
         for (char ch : byteString.toCharArray()) {
