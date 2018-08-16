@@ -14,6 +14,8 @@ public void setup() {
     HashMap<Byte, String> binaryMap = buildBinaryMap(root);
     ArrayList<String> encodedLines = encodeData(binaryMap, lines);
     logData(encodedLines);
+    writeEncodedData(encodedLines, root);
+    System.out.println("printed the lines to the file");
 }
 
 public void logData(ArrayList<String> encodedLines) {
@@ -108,21 +110,66 @@ public ArrayList<String> encodeData(HashMap<Byte, String> binaryMap, ArrayList<S
     return output;
 }
 
-public void writeByte(String outputFilepath, Byte data) {
-    try {
-        File file = new File(outputFilepath);
-        FileOutputStream output = new FileOutputStream(file, true);
-        output.write(data);
-        output.close();
-    } catch (Exception e) {}
+//public void writeByte(File outputFile, byte data) {
+//    try {
+//        FileOutputStream output = new FileOutputStream(outputFile, true);
+//        output.write(data);
+//        output.close();
+//    } catch (Exception e) { println("well fuck"); }
+//}
+
+//private static String bitBuffer = "";
+//public void writeBit(File outputFile, char ch) {
+//    if (bitBuffer.length() == 8) {
+//        byte b = 0b01111111;
+//        writeByte(outputFile, b);
+//        bitBuffer = "";
+//    }
+//    bitBuffer += ch;
+//}
+
+private static byte[] encodeToByteArray(int[] bits) {
+    int numBytes = (bits.length + 7) / 8;
+    byte[] results = new byte[numBytes];
+    int byteValue = 0;
+    int index;
+    for (index = 0; index < bits.length; index++) {
+        byteValue = (byteValue << 1) | bits[index];
+        if (index % 8 == 7) {
+            results[index / 8] = (byte)byteValue;
+        }
+    }
+
+    if (index % 8 != 0) {
+        results[index / 8] = (byte) (byteValue << (8 - (index % 8)));
+    }
+    return results;
 }
 
 public static final String signature = "HuffmanEncodingv0.0.1MITLicense";
-public boolean writeEncodedData(ArrayList<String> encodedBytes, Node root) {
+public static final String kFileNotFoundError = "The file could not be found, nor created.";
+public static final String kInputOutputError = "The program could not write to the file.";
+public void writeEncodedData(ArrayList<String> encodedBytes, Node root) {
     long now = System.nanoTime();
     String time = Long.toString(now);
-    String outputFilepath = outputFilepathBase + time.hashCode();
-    return true;
+    String outputFilepath = outputFilepathBase + Math.abs(time.hashCode());
+    try { 
+        File outputFile = new File(outputFilepath);
+        if (!outputFile.exists()) outputFile.createNewFile();
+        FileOutputStream outputStream = new FileOutputStream(outputFile, true);
+        
+        String byteString = String.join("", encodedBytes);
+        int[] fragmentedBytes = new int[byteString.length()];
+        int index = 0;
+        for (char ch : byteString.toCharArray()) {
+            fragmentedBytes[index++] = ch == '1' ? 1 : 0;
+        }
+        
+        byte[] bitmaskedBytes = encodeToByteArray(fragmentedBytes);
+        outputStream.write(bitmaskedBytes);
+        outputStream.close();
+    } catch (FileNotFoundException e) { println(kFileNotFoundError); 
+    } catch (IOException e) { println(kInputOutputError); } 
 }
 
 public int countReductions(ArrayList<String> encodedBytes) {
