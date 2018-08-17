@@ -167,6 +167,15 @@ public void writeEncodedData(ArrayList<String> encodedBytes, HashMap<Byte, Integ
     } catch (IOException e) { println(kInputOutputError); } 
 }
 
+public static final String kDefaultInputFilepath = dataDirectory + "input/";
+public static final String kInputFileNotFoundError = "Input file could not be found.";
+public void readEncodedData() {
+    File input = new File(kDefaultInputFilepath);
+    if (!input.exists()) {
+        println(kInputFileNotFoundError); 
+    }
+}
+
 public int countReductions(ArrayList<String> encodedBytes) {
     int reductions = 0;
     for (String line : encodedBytes) {
