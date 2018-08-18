@@ -173,6 +173,7 @@ public void readEncodedData() {
     File input = new File(kDefaultInputFilepath);
     if (!input.exists()) {
         println(kInputFileNotFoundError); 
+        exit(1);
     }
 }
 
