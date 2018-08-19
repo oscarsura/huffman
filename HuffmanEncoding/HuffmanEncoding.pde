@@ -15,6 +15,7 @@ public void setup() {
     ArrayList<String> encodedLines = encodeData(binaryMap, lines);
     logData(encodedLines);
     writeEncodedData(encodedLines, frequencyMap, binaryMap);
+    readEncodedData();
 }
 
 public void logData(ArrayList<String> encodedLines) {
@@ -167,13 +168,26 @@ public void writeEncodedData(ArrayList<String> encodedBytes, HashMap<Byte, Integ
     } catch (IOException e) { println(kInputOutputError); } 
 }
 
+public static final String kReadInputError = "Could not read from the input file.";
+public void readFrequencyMap(File inputFilepath) {
+    try {
+        FileInputStream inputStream = new FileInputStream(inputFilepath);
+        System.out.println("There are this many bytes available:" + inputStream.available());
+    } catch (FileNotFoundException e) { println(kFileNotFoundError); exit();
+    } catch (IOException e) { println(kReadInputError); exit(); }
+}
+
 public static final String kDefaultInputFilepath = dataDirectory + "input/";
-public static final String kInputFileNotFoundError = "Input file could not be found.";
+public static final String kInputDirectoryNotFoundError = "Input file could not be found.";
 public void readEncodedData() {
-    File input = new File(kDefaultInputFilepath);
-    if (!input.exists()) {
-        println(kInputFileNotFoundError); 
-        exit(1);
+    if (log) println("Reading the input directory and decoding the most recently encoded file.");
+    File inputDirectory = new File(kDefaultInputFilepath);
+    if (!inputDirectory.exists()) {
+        println(kInputDirectoryNotFoundError); 
+        exit();
+    }
+    for (File inputFile : inputDirectory.listFiles()) {
+        readFrequencyMap(inputFile);
     }
 }
 
