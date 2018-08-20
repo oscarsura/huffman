@@ -1,9 +1,10 @@
 import java.util.*;
 import java.io.*;
+import java.nio.file.Path;
 
 public static final String dataDirectory = "/Users/surao/Desktop/root/dev/github/huffman/data/";
 public static final String inputFilepath = dataDirectory + "mobydick.txt";
-public static final String outputFilepathBase = dataDirectory;
+public static final String outputFilepathBase = dataDirectory + "input/";
 public static final boolean log = true;
 
 public void setup() {
@@ -188,7 +189,9 @@ public void readEncodedData() {
     }
     for (File inputFile : inputDirectory.listFiles()) {
         readFrequencyMap(inputFile);
+        Path path = Path.get(inputFile.getName());
     }
+    println("test");
 }
 
 public int countReductions(ArrayList<String> encodedBytes) {
